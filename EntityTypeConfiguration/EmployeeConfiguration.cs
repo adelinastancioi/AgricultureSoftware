@@ -13,7 +13,7 @@ namespace AgriSoft.EntityTypeConfiguration
         public void Configure(EntityTypeBuilder<Employee> builder)
         {
             builder.ToTable("Employee","dbo").HasKey(x => x.Id);
-            builder.HasMany<AgriSoft.Models.Task>(x => x.Tasks);
+            builder.HasMany<AgriSoft.Models.Task>(x => x.Tasks).WithOne().HasForeignKey(x => x.TaskId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

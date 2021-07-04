@@ -35,6 +35,7 @@ namespace AgriSoft
             }
             );
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            services.AddScoped<ICropRepository, CropRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

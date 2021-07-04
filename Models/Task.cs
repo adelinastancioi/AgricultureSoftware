@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 #nullable disable
 
@@ -14,7 +13,7 @@ namespace AgriSoft.Models
         public DateTime? TaskDate { get; set; }
         public TimeSpan? Estimated { get; set; }
         public int EmployeeId { get; set; }
-
+        public string Location { get; set; }
         public virtual Employee Employee { get; set; }
     }
 }

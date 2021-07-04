@@ -1,8 +1,7 @@
-﻿using AgriSoft.Services;
+﻿using AgriSoft.DTO;
+using AgriSoft.Models;
+using AgriSoft.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AgriSoft.Controllers
@@ -18,18 +17,61 @@ namespace AgriSoft.Controllers
             _employeeRepository = employeeRepository;
         }
 
-        [HttpGet("tasks")]
-        public IActionResult GetTasks()
+        [HttpPut("save-task")]
+        public async Task<IActionResult> SaveEmployeeTask([FromBody] AgriSoft.Models.Task task)
         {
-            var result =  _employeeRepository.GetTasks();
+            await _employeeRepository.SaveEmployeeTask(task);
+            return Ok();
+        }
+
+        [HttpGet("tasks")]
+        public async Task<IActionResult> GetTasks()
+        {
+            var result =  await _employeeRepository.GetTasks();
             return Ok(result);
         }
 
         [HttpGet("employees")]
-        public IActionResult GetEmployees()
+        public async Task<IActionResult> GetEmployees()
         {
-            var result = _employeeRepository.GetEmployees();
+            var result = await _employeeRepository.GetEmployees();
             return Ok(result);
         }
+
+        [HttpPut("save-employee")]
+        public async Task<IActionResult> SaveEmployeeTask([FromBody] Employee employee)
+        {
+            await _employeeRepository.SaveEmployee(employee);
+            return Ok();
+        }
+
+        [HttpGet("employee-tasks")]
+        public async Task<IActionResult> GetEmployeeTasks([FromQuery] int employeeId)
+        {
+            var result = await _employeeRepository.GetEmployeeTasks(employeeId);
+            return Ok(result);
+        }
+    
+        [HttpPost("login")]
+        public async Task<IActionResult> PostLogin([FromBody] EmployeeLogin employee)
+        {
+           var res = await _employeeRepository.GetLogin(employee);
+           return Ok(res);
+        }
+
+        [HttpDelete("remove-employee")]
+        public async Task<IActionResult> RemoveEmployee([FromQuery] int employeeId)
+        {
+            await _employeeRepository.RemoveEmployee(employeeId);
+            return Ok();
+        }
+
+        [HttpDelete("remove-task")]
+        public async Task<IActionResult> RemoveTask([FromQuery] int taskId)
+        {
+            await _employeeRepository.RemoveTask(taskId);
+            return Ok();
+        }
+
     }
 }

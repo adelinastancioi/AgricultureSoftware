@@ -1,15 +1,22 @@
 ﻿using System;
-using AgriSoft.EntityTypeConfiguration;
-using AgriSoft.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
-namespace AgriSoft.Context
+namespace AgriSoft.Models
 {
-    public partial class FarmContext : DbContext
+    public partial class farm_managementContext : DbContext
     {
+        public farm_managementContext()
+        {
+        }
+
+        public farm_managementContext(DbContextOptions<farm_managementContext> options)
+            : base(options)
+        {
+        }
+
         public virtual DbSet<AgriculturalOperation> AgriculturalOperations { get; set; }
         public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<Crop> Crops { get; set; }
@@ -24,43 +31,19 @@ namespace AgriSoft.Context
         public virtual DbSet<UseOfEquipment> UseOfEquipments { get; set; }
         public virtual DbSet<UseOfRawMaterial> UseOfRawMaterials { get; set; }
 
-
-        public FarmContext(DbContextOptions<FarmContext> options)
-            :   base(options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=DESKTOP-O7P1ET8\\;Database=farm_management;Trusted_Connection=True;");
+            }
         }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
 
-
-            modelBuilder.Entity<Task>(entity =>
-            {
-                entity.ToTable("Task");
-
-                entity.Property(e => e.Description).IsUnicode(false);
-
-                entity.Property(e => e.Priority)
-                    .HasMaxLength(15)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.TaskDate).HasColumnType("datetime");
-
-                entity.Property(e => e.Title)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.HasOne(d => d.Employee)
-                    .WithMany(p => p.Tasks)
-                    .HasForeignKey(d => d.EmployeeId)
-                  //  .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Task__EmployeeId__33D4B598");
-            });
             modelBuilder.Entity<AgriculturalOperation>(entity =>
             {
                 entity.HasKey(e => e.OperationId)
@@ -139,7 +122,7 @@ namespace AgriSoft.Context
                 entity.HasOne(d => d.Storage)
                     .WithMany(p => p.Crops)
                     .HasForeignKey(d => d.StorageId)
-                    //.OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK__Crop__StorageId__3F466844");
             });
 
@@ -155,17 +138,72 @@ namespace AgriSoft.Context
                 entity.HasOne(d => d.Crop)
                     .WithMany(p => p.CropXoperations)
                     .HasForeignKey(d => d.CropId)
-                    //.OnDelete(DeleteBehavior.ClientSetNull)
+                   // .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__CropXOper__CropI__5BE2A6F2");
 
                 entity.HasOne(d => d.Operation)
                     .WithMany(p => p.CropXoperations)
                     .HasForeignKey(d => d.OperationId)
-                    //.OnDelete(DeleteBehavior.ClientSetNull)
+                   // .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__CropXOper__Opera__5AEE82B9");
             });
 
-           
+            modelBuilder.Entity<Employee>(entity =>
+            {
+                entity.ToTable("Employee");
+
+                entity.Property(e => e.Address)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Cnp)
+                    .IsRequired()
+                    .HasMaxLength(13)
+                    .IsUnicode(false)
+                    .HasColumnName("CNP");
+
+                entity.Property(e => e.DateOfBirth)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DateOfEmployment)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FirstName)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LastName)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mail)
+                    .HasMaxLength(40)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Password)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PhoneNumber)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Position)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Salary).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.WorkProgram)
+                    .HasMaxLength(15)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<Equipment>(entity =>
             {
                 entity.Property(e => e.Description).IsUnicode(false);
@@ -278,6 +316,34 @@ namespace AgriSoft.Context
                     .HasMaxLength(25)
                     .IsUnicode(false);
             });
+
+            modelBuilder.Entity<Task>(entity =>
+            {
+                entity.ToTable("Task");
+
+                entity.Property(e => e.Description).IsUnicode(false);
+
+                entity.Property(e => e.Location)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Priority)
+                    .HasMaxLength(15)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TaskDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Employee)
+                    .WithMany(p => p.Tasks)
+                    .HasForeignKey(d => d.EmployeeId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK__Task__EmployeeId__33D4B598");
+            });
+
             modelBuilder.Entity<UseOfEquipment>(entity =>
             {
                 entity.HasKey(e => new { e.EquipmentId, e.CropId })
@@ -290,13 +356,13 @@ namespace AgriSoft.Context
                 entity.HasOne(d => d.Crop)
                     .WithMany(p => p.UseOfEquipments)
                     .HasForeignKey(d => d.CropId)
-                   // .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK__UseOfEqui__CropI__4E88ABD4");
 
                 entity.HasOne(d => d.Equipment)
                     .WithMany(p => p.UseOfEquipments)
                     .HasForeignKey(d => d.EquipmentId)
-                    //.OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK__UseOfEqui__Equip__4D94879B");
             });
 
@@ -312,16 +378,15 @@ namespace AgriSoft.Context
                 entity.HasOne(d => d.Crop)
                     .WithMany(p => p.UseOfRawMaterials)
                     .HasForeignKey(d => d.CropId)
-                   // .OnDelete(DeleteBehavior.ClientSetNull)
+                  //  .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__UseOfRawM__CropI__52593CB8");
 
                 entity.HasOne(d => d.RawMaterial)
                     .WithMany(p => p.UseOfRawMaterials)
                     .HasForeignKey(d => d.RawMaterialId)
-                    //.OnDelete(DeleteBehavior.ClientSetNull)
+                 //   .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__UseOfRawM__RawMa__5165187F");
             });
-
 
             OnModelCreatingPartial(modelBuilder);
         }
